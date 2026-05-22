@@ -4,92 +4,70 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Магазин Свежих Овощей</title>
-<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@300;400;600;800&family=Golos+Text:wght@400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@400;700&family=Golos+Text:wght@400;600&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
-  :root {
-    --bg: #0d0d0d; --surface: #161616; --surface2: #1f1f1f; --border: #2a2a2a;
-    --accent: #e8ff47; --accent2: #ff6b35; --text: #f0f0f0; --muted: #888;
-    --danger: #ff4444; --success: #44ff88; --radius: 12px;
-  }
-  * { margin:0; padding:0; box-sizing:border-box; }
-  body { background:var(--bg); color:var(--text); font-family:'Golos Text',sans-serif; min-height:100vh; }
-
-  nav { position:sticky; top:0; z-index:100; background:rgba(13,13,13,0.92); backdrop-filter:blur(16px); border-bottom:1px solid var(--border); display:flex; align-items:center; justify-content:space-between; padding:0 24px; height:64px; }
-  .logo { font-family:'Unbounded',sans-serif; font-size:14px; font-weight:800; cursor:default; user-select:none; }
-  .logo span { color:var(--accent); }
-  .btn { display:inline-flex; align-items:center; gap:8px; padding:10px 20px; border-radius:var(--radius); border:none; cursor:pointer; font-family:'Golos Text',sans-serif; font-size:14px; font-weight:600; }
-  .btn-ghost { background:transparent; color:var(--muted); border:1px solid var(--border); }
-  .btn-accent { background:var(--accent); color:#000; }
+  :root { --bg: #0d0d0d; --surface: #161616; --accent: #e8ff47; --success: #44ff88; --text: #fff; --muted: #888; }
+  body { background: var(--bg); color: var(--text); font-family: 'Golos Text', sans-serif; margin: 0; padding-bottom: 80px; }
   
-  .view { display:none; } .view.active { display:block; }
-
-  /* SHOP */
-  .shop-header { padding:48px 24px 32px; }
-  .shop-title { font-family:'Unbounded',sans-serif; font-size:40px; font-weight:800; line-height:1.1; }
-  .shop-title span { color:var(--accent); }
-  .products-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(280px,1fr)); gap:16px; padding:0 24px 32px; }
-  .product-card { background:var(--surface); border:1px solid var(--border); border-radius:16px; padding:24px; }
-  .product-name { font-family:'Unbounded',sans-serif; font-size:16px; font-weight:600; }
-  .product-footer { display:flex; align-items:center; justify-content:space-between; margin-top:20px; }
-  .product-price { font-family:'Unbounded',sans-serif; font-size:18px; font-weight:700; color:var(--accent); }
+  nav { display: flex; align-items: center; justify-content: space-between; padding: 20px; border-bottom: 1px solid #2a2a2a; position: sticky; top: 0; background: rgba(13,13,13,0.95); z-index: 100; }
+  .logo { font-family: 'Unbounded', sans-serif; font-size: 14px; line-height: 1.2; user-select: none; }
+  .logo span { color: var(--accent); }
   
-  .qty-control { display:flex; align-items:center; gap:8px; }
-  .qty-btn { width:32px; height:32px; border-radius:8px; background:var(--surface2); border:1px solid var(--border); color:var(--text); cursor:pointer; }
-  .qty-display { font-weight:700; min-width:24px; text-align:center; }
-
-  .cart-container { max-width:800px; margin:0 auto; padding:48px 24px; }
-  .form-section { background:var(--surface); border:1px solid var(--border); border-radius:16px; padding:28px; margin-top:24px; }
-  input, textarea, select { background:var(--surface2); border:1px solid var(--border); color:var(--text); border-radius:8px; padding:12px; width:100%; margin-top:4px; }
-  .submit-btn { width:100%; padding:18px; margin-top:20px; background:var(--accent); color:#000; border:none; border-radius:12px; font-weight:700; cursor:pointer; font-family:'Unbounded',sans-serif; }
+  .btn-cart { background: var(--success); color: #000; border: none; padding: 12px 20px; border-radius: 8px; font-weight: 800; font-size: 14px; cursor: pointer; }
+  
+  .products-grid { padding: 20px; display: grid; gap: 12px; }
+  .product-card { background: var(--surface); padding: 16px; border-radius: 12px; display: flex; align-items: center; justify-content: space-between; }
+  .p-name { font-weight: 600; font-size: 15px; }
+  .p-price { font-family: 'Unbounded', sans-serif; color: var(--accent); font-size: 13px; }
+  
+  .qty-ctrl { display: flex; align-items: center; gap: 10px; }
+  .btn-qty { width: 34px; height: 34px; border-radius: 50%; border: 1px solid #333; background: #222; color: #fff; font-size: 18px; cursor: pointer; }
+  
+  .view { display: none; } .view.active { display: block; }
+  
+  .cart-container { padding: 20px; max-width: 500px; margin: 0 auto; }
+  .invoice-item { display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid #222; font-size: 14px; }
+  .input-field { width: 100%; padding: 14px; background: #1a1a1a; border: 1px solid #333; border-radius: 8px; color: #fff; margin-bottom: 10px; }
 </style>
 </head>
 <body>
 
 <nav>
   <div class="logo" onclick="secretLogin()">МАГАЗИН<br><span>СВЕЖИХ ОВОЩЕЙ</span></div>
-  <button class="btn btn-ghost" id="cartNavBtn" onclick="showView('cart')" style="display:none; border-color:var(--success);">
-    <span style="color:var(--success); font-weight:700;">Оформить</span>
-    <span id="navTotal" style="color:var(--success); margin-left:6px; font-family:'Unbounded',sans-serif;">0 ₸</span>
+  <button id="cartNavBtn" class="btn-cart" style="display:none" onclick="showView('cart')">
+    ОФОРМИТЬ (<span id="navTotal">0 ₸</span>)
   </button>
 </nav>
 
 <div id="shopView" class="view active">
-  <div class="shop-header"><h1 class="shop-title">Выберите<br><span>товары</span></h1></div>
-  <div class="products-grid" id="productsGrid">Загрузка...</div>
+  <div class="products-grid" id="productsGrid">Загрузка товаров...</div>
 </div>
 
 <div id="cartView" class="view">
   <div class="cart-container">
-    <button class="btn btn-ghost" onclick="showView('shop')">← Назад</button>
-    <h2 style="margin:20px 0;">Накладная</h2>
+    <button onclick="showView('shop')" style="background:none; border:none; color:var(--muted); margin-bottom:20px;">← Назад к покупкам</button>
+    <h2 style="font-family:'Unbounded',sans-serif; margin-bottom:20px;">Накладная</h2>
     <div id="cartItemsList"></div>
-    <div id="cartSummary" style="margin:20px 0; font-weight:700; color:var(--success); font-size:20px;"></div>
+    <div id="cartSummary" style="font-size: 20px; font-weight: 800; color: var(--success); margin: 20px 0;"></div>
     
-    <div class="form-section">
-      <h3>Контактные данные</h3>
-      <input type="text" id="fname" placeholder="Ваше имя">
-      <input type="text" id="fcompany" placeholder="Компания (необязательно)" style="margin-top:10px">
-      <input type="tel" id="fphone" placeholder="Телефон" style="margin-top:10px">
-    </div>
-    <div class="form-section">
-      <h3>Адрес доставки</h3>
-      <input type="text" value="Астана" readonly style="opacity:0.6; cursor:not-allowed;">
-      <input type="text" id="fstreet" placeholder="Улица, дом, квартира" style="margin-top:10px">
-      <textarea id="fcomment" placeholder="Комментарий..." style="margin-top:10px"></textarea>
-    </div>
-    <button class="submit-btn" onclick="submitOrder()">Отправить заказ в WhatsApp</button>
+    <input type="text" id="fname" class="input-field" placeholder="Ваше Имя">
+    <input type="tel" id="fphone" class="input-field" placeholder="Телефон">
+    <input type="text" value="Астана" class="input-field" readonly>
+    <input type="text" id="fstreet" class="input-field" placeholder="Адрес (ул, дом, кв)">
+    
+    <button class="btn-cart" style="width:100%; padding: 20px; font-size: 16px;" onclick="submitOrder()">ОТПРАВИТЬ ЗАКАЗ</button>
   </div>
 </div>
 
 <script>
 const { createClient } = window.supabase;
-const supabaseClient = createClient('https://izzqhixtzxkjiwyquvri.supabase.co', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml6enFoaXh0enhraml3eXF1dnJpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk0NTIwODEsImV4cCI6MjA5NTAyODA4MX0.5vrBFp2WTNFlxPkhuQgPDlhq5t20JZUETT3c_rD84aM');
+const supabase = createClient('https://izzqhixtzxkjiwyquvri.supabase.co', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml6enFoaXh0enhraml3eXF1dnJpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk0NTIwODEsImV4cCI6MjA5NTAyODA4MX0.5vrBFp2WTNFlxPkhuQgPDlhq5t20JZUETT3c_rD84aM');
 
-let cart = {}, products = [], settings = { waNumber:'77054959007' };
+let cart = {}, products = [];
 
-async function loadProducts() {
-  const { data } = await supabaseClient.from('products').select('*');
+async function init() {
+  const { data } = await supabase.from('products').select('*');
   products = data || [];
   renderProducts();
 }
@@ -97,14 +75,14 @@ async function loadProducts() {
 function renderProducts(){
   document.getElementById('productsGrid').innerHTML = products.map(p => `
     <div class="product-card">
-      <div class="product-name">${p.name}</div>
-      <div class="product-price">${fmt(p.price)}</div>
-      <div class="product-footer">
-        <div class="qty-control">
-          <button class="qty-btn" onclick="changeQty(${p.id},-1)">−</button>
-          <span class="qty-display">${cart[p.id]||0}</span>
-          <button class="qty-btn" onclick="changeQty(${p.id},1)">+</button>
-        </div>
+      <div class="product-info">
+        <div class="p-name">${p.name}</div>
+        <div class="p-price">${fmt(p.price)} / ${p.unit}</div>
+      </div>
+      <div class="qty-ctrl">
+        <button class="btn-qty" onclick="changeQty(${p.id},-1)">−</button>
+        <span style="font-weight:700">${cart[p.id]||0}</span>
+        <button class="btn-qty" onclick="changeQty(${p.id},1)">+</button>
       </div>
     </div>`).join('');
 }
@@ -117,23 +95,19 @@ function changeQty(id, delta){
 
 function updateCartUI(){
   document.getElementById('navTotal').textContent = fmt(cartTotal());
-  document.getElementById('cartNavBtn').style.display = Object.keys(cart).length > 0 ? 'flex' : 'none';
+  document.getElementById('cartNavBtn').style.display = Object.keys(cart).length ? 'block' : 'none';
 }
 
-function cartTotal(){ return Object.entries(cart).reduce((s,[id,q])=>{ const p=products.find(x=>x.id==id); return s + (p?p.price*q:0); },0); }
+function cartTotal(){ return Object.entries(cart).reduce((s,[id,q])=>{ const p=products.find(x=>x.id==id); return s+(p?p.price*q:0); },0); }
 
 function renderCart(){
   const wrap = document.getElementById('cartItemsList');
   wrap.innerHTML = Object.entries(cart).map(([id,qty])=>{
     const p = products.find(x=>x.id==id);
-    return `<div style="display:flex; justify-content:space-between; align-items:center; padding:10px 0; border-bottom:1px solid var(--border);">
-      <div style="flex:1">${p.name}<br><small style="color:var(--muted)">${fmt(p.price)} x ${qty} ${p.unit}</small></div>
-      <div class="qty-control">
-        <button class="qty-btn" onclick="changeQtyCart(${p.id},-1)">−</button>
-        <span class="qty-display">${qty}</span>
-        <button class="qty-btn" onclick="changeQtyCart(${p.id},1)">+</button>
-      </div>
-      <div style="width:80px; text-align:right; font-weight:700; color:var(--accent)">${fmt(p.price*qty)}</div>
+    return `<div class="invoice-item">
+      <div>${p.name}<br><small style="color:var(--muted)">${qty} ${p.unit} x ${fmt(p.price)}</small></div>
+      <div class="qty-ctrl"><button class="btn-qty" style="width:28px;height:28px" onclick="changeQtyCart(${p.id},-1)">−</button> ${qty} <button class="btn-qty" style="width:28px;height:28px" onclick="changeQtyCart(${p.id},1)">+</button></div>
+      <div style="font-weight:700">${fmt(p.price*qty)}</div>
     </div>`;
   }).join('');
   document.getElementById('cartSummary').textContent = 'ИТОГО: ' + fmt(cartTotal());
@@ -142,21 +116,21 @@ function renderCart(){
 function changeQtyCart(id, delta){ changeQty(id, delta); renderCart(); }
 
 async function submitOrder(){
-  const name = document.getElementById('fname').value, street = document.getElementById('fstreet').value;
-  if(!name || !street){ alert('Заполните Имя и Адрес'); return; }
+  const name=document.getElementById('fname').value, street=document.getElementById('fstreet').value, phone=document.getElementById('fphone').value;
+  if(!name || !street || !phone) return alert('Заполните все данные!');
   
-  const items = Object.entries(cart).map(([id,q])=>{ const p=products.find(x=>x.id==id); return `• ${p.name}: ${q} ${p.unit} x ${fmt(p.price)} = ${fmt(p.price*q)}`; }).join('\n');
-  const msg = `НАКЛАДНАЯ\nКлиент: ${name}\nТелефон: ${document.getElementById('fphone').value}\nАдрес: Астана, ${street}\n\n${items}\n\nИТОГО: ${fmt(cartTotal())}`;
+  let msg = `НАКЛАДНАЯ\nКлиент: ${name}\nТелефон: ${phone}\nАдрес: Астана, ${street}\n\n`;
+  Object.entries(cart).forEach(([id,q])=>{ const p=products.find(x=>x.id==id); msg += `• ${p.name}: ${q} ${p.unit} x ${p.price} = ${p.price*q} ₸\n`; });
+  msg += `\nИТОГО: ${cartTotal()} ₸`;
   
-  await supabaseClient.from('orders').insert([{ name, phone: document.getElementById('fphone').value, items: cart, total: cartTotal() }]);
-  window.open(`https://wa.me/${settings.waNumber}?text=${encodeURIComponent(msg)}`, '_blank');
+  await supabase.from('orders').insert([{ name, phone, items: cart, total: cartTotal() }]);
+  window.open(`https://wa.me/77054959007?text=${encodeURIComponent(msg)}`, '_blank');
 }
 
-let secretClicks = 0;
-function secretLogin() { if(++secretClicks >= 5) location.href='?admin=true'; }
+let clicks=0; function secretLogin(){ if(++clicks >= 5) location.href='?admin=true'; }
 function showView(id){ document.querySelectorAll('.view').forEach(v=>v.classList.remove('active')); document.getElementById(id+'View').classList.add('active'); if(id==='cart') renderCart(); }
 function fmt(n){ return new Intl.NumberFormat('ru-RU',{style:'currency',currency:'KZT',minimumFractionDigits:0}).format(n); }
-loadProducts();
+init();
 </script>
 </body>
 </html>
