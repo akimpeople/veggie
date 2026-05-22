@@ -1,4 +1,4 @@
-Проверь код: <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="ru">
 <head>
 <meta charset="UTF-8">
@@ -467,40 +467,18 @@ function removeItem(id){ delete cart[id]; updateCartUI(); renderCart(); }
 //  ORDER SUBMIT (В БД + WHATSAPP)
 // ─────────────────────────────────────────
 async function submitOrder(){
-  const name = document.getElementById('fname').value, 
-        street = document.getElementById('fstreet').value, 
-        phone = document.getElementById('fphone').value;
+    const name = document.getElementById('fname').value, street = document.getElementById('fstreet').value, phone = document.getElementById('fphone').value;
+    if(!name || !street || !phone) return alert('Заполните данные!');
         
-  if(!name || !street || !phone) {
-    alert('Заполните Имя, Телефон и Адрес!'); 
-    return;
-  }
-  
-  // 1. Формируем текст накладной
-  let msg = `НАКЛАДНАЯ\nКлиент: ${name}\nТелефон: ${phone}\nАдрес: Астана, ${street}\n\n`;
-  Object.entries(cart).forEach(([id,q])=>{ 
-    const p = products.find(x=>x.id==id); 
-    if(p) msg += `• ${p.name}: ${q} ${p.unit} x ${fmt(p.price)} = ${fmt(p.price*q)}\n`; 
-  });
-  msg += `\nИТОГО: ${fmt(cartTotal())}`;
-  
-  // 2. Отправка в БД Supabase
-  await supabaseClient.from('orders').insert([{ 
-    name, 
-    phone, 
-    items: cart, 
-    total: cartTotal(),
-    date: new Date().toLocaleString()
-  }]);
-  
-  // 3. Открытие WhatsApp (ВАЖНО: здесь была ошибка, теперь исправлено)
-  window.open(`https://wa.me/${settings.waNumber}?text=${encodeURIComponent(msg)}`, '_blank');
-  
-  // 4. Очистка и сообщение об успехе
-  cart = {}; 
-  updateCartUI(); 
-  showView('shop');
-  showToast('Заказ отправлен!');
+    let msg = `НАКЛАДНАЯ\nКлиент: ${name}\nТелефон: ${phone}\nАдрес: Астана, ${street}\n\n`;
+    Object.entries(cart).forEach(([id,q])=>{ const p=products.find(x=>x.id==id); msg += `• ${p.name}: ${q} ${p.unit} x ${fmt(p.price)} = ${fmt(p.price*q)}\n`; });
+    msg += `\nИТОГО: ${fmt(cartTotal())}`;
+        
+        // Отправка в БД
+    await supabase.from('orders').insert([{ name, phone, items: cart, total: cartTotal() }]);
+        
+        // ИСПРАВЛЕНИЕ: Вместо window.open используем window.location.href (строка 145)
+    window.location.href = `https://wa.me/77054959007?text=${encodeURIComponent(msg)}`;
 }
 
 function clearCart(){ cart = {}; updateCartUI(); }
