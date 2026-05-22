@@ -467,69 +467,40 @@ function removeItem(id){ delete cart[id]; updateCartUI(); renderCart(); }
 //  ORDER SUBMIT (В БД + WHATSAPP)
 // ─────────────────────────────────────────
 async function submitOrder(){
-  const name    = document.getElementById('fname').value.trim();
-  const company = document.getElementById('fcompany').value.trim();
-  const phone   = document.getElementById('fphone').value.trim();
-  const city    = document.getElementById('fcity').value.trim();
-  const street  = document.getElementById('fstreet').value.trim();
-  const delivery= document.getElementById('fdelivery').value;
-  const comment = document.getElementById('fcomment').value.trim();
-
-  if(!name || !phone || !street){
-    alert('Пожалуйста, заполните обязательные поля: Имя, Телефон, Адрес'); return;
+  const name = document.getElementById('fname').value, 
+        street = document.getElementById('fstreet').value, 
+        phone = document.getElementById('fphone').value;
+        
+  if(!name || !street || !phone) {
+    alert('Заполните Имя, Телефон и Адрес!'); 
+    return;
   }
-  if(!Object.keys(cart).length){ alert('Вы ничего не выбрали!'); return; }
-
-  const orderNum = 'ORD-' + Date.now().toString().slice(-6);
-  const items = Object.entries(cart).map(([id,qty])=>{
-    const p = products.find(x=>x.id==id);
-    return p ? { id:p.id, name:p.name, price:p.price, qty, unit:p.unit||'шт', total:p.price*qty } : null;
-  }).filter(Boolean);
-
-  const orderData = { 
-    id: orderNum, 
-    date: new Date().toLocaleString('ru-RU'), 
-    status: 'new', 
-    name, 
-    company, 
-    phone, 
-    city, 
-    street, 
-    delivery, 
-    comment, 
-    items, 
-    total: cartTotal() 
-  };
-
-  // 1. Сохраняем в Supabase
-  await supabaseClient.from('orders').insert([orderData]);
-
-  // 2. Формируем накладную для WhatsApp
-  let msg = `НАКЛАДНАЯ (Заказ ${orderNum})\n`;
-  msg += `━━━━━━━━━━━━━━━\n`;
-  msg += `Клиент: ${name}\n`;
-  if(company) msg += `Компания: ${company}\n`;
-  msg += `Телефон: ${phone}\n`;
-  msg += `Адрес доставки: ${city}, ${street}\n`;
-  if(comment) msg += `Комментарий: ${comment}\n`;
-  msg += `━━━━━━━━━━━━━━━\n`;
-  msg += `СОСТАВ ЗАКАЗА:\n\n`;
   
-  items.forEach((i, idx) => { 
-    msg += `${idx + 1}. ${i.name}\n`;
-    msg += `— ${i.qty} ${i.unit} × ${fmt(i.price)} = ${fmt(i.total)}\n\n`;
+  // 1. Формируем текст накладной
+  let msg = `НАКЛАДНАЯ\nКлиент: ${name}\nТелефон: ${phone}\nАдрес: Астана, ${street}\n\n`;
+  Object.entries(cart).forEach(([id,q])=>{ 
+    const p = products.find(x=>x.id==id); 
+    if(p) msg += `• ${p.name}: ${q} ${p.unit} x ${fmt(p.price)} = ${fmt(p.price*q)}\n`; 
   });
+  msg += `\nИТОГО: ${fmt(cartTotal())}`;
   
-  msg += `━━━━━━━━━━━━━━━\n`;
-  msg += `ИТОГО К ОПЛАТЕ: ${fmt(orderData.total)}`;
-
-  const wa = settings.waNumber || '';
-  const url = `https://wa.me/${wa}?text=${encodeURIComponent(msg)}`;
-  window.open(url, '_blank');
+  // 2. Отправка в БД Supabase
+  await supabaseClient.from('orders').insert([{ 
+    name, 
+    phone, 
+    items: cart, 
+    total: cartTotal(),
+    date: new Date().toLocaleString()
+  }]);
   
-  // Очищаем корзину и показываем экран успеха
-  showView('success');
-  loadOrders(); // Обновляем локальный список заказов
+  // 3. Открытие WhatsApp (ВАЖНО: здесь была ошибка, теперь исправлено)
+  window.open(`https://wa.me/${settings.waNumber}?text=${encodeURIComponent(msg)}`, '_blank');
+  
+  // 4. Очистка и сообщение об успехе
+  cart = {}; 
+  updateCartUI(); 
+  showView('shop');
+  showToast('Заказ отправлен!');
 }
 
 function clearCart(){ cart = {}; updateCartUI(); }
