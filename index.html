@@ -466,20 +466,54 @@ function removeItem(id){ delete cart[id]; updateCartUI(); renderCart(); }
 // ─────────────────────────────────────────
 //  ORDER SUBMIT (В БД + WHATSAPP)
 // ─────────────────────────────────────────
-async function submitOrder(){
-    const name = document.getElementById('fname').value, street = document.getElementById('fstreet').value, phone = document.getElementById('fphone').value;
-    if(!name || !street || !phone) return alert('Заполните данные!');
-        
-    let msg = `НАКЛАДНАЯ\nКлиент: ${name}\nТелефон: ${phone}\nАдрес: Астана, ${street}\n\n`;
-    Object.entries(cart).forEach(([id,q])=>{ const p=products.find(x=>x.id==id); msg += `• ${p.name}: ${q} ${p.unit} x ${fmt(p.price)} = ${fmt(p.price*q)}\n`; });
-    msg += `\nИТОГО: ${fmt(cartTotal())}`;
-        
-        // Отправка в БД
-    await supabase.from('orders').insert([{ name, phone, items: cart, total: cartTotal() }]);
-        
-        // ИСПРАВЛЕНИЕ: Вместо window.open используем window.location.href (строка 145)
-    window.location.href = `https://wa.me/77054959007?text=${encodeURIComponent(msg)}`;
-}
+    async function submitOrder() {
+        const name = document.getElementById('fname').value;
+        const phone = document.getElementById('fphone').value;
+        const street = document.getElementById('fstreet').value;
+
+        if (!name || !phone || !street) {
+            alert('Пожалуйста, заполните Имя, Телефон и Адрес');
+            return;
+        }
+
+        // 1. Формируем текст сообщения заранее
+        let msg = `НАКЛАДНАЯ\nКлиент: ${name}\nТелефон: ${phone}\nАдрес: Астана, ${street}\n\n`;
+        Object.entries(cart).forEach(([id, qty]) => {
+            const p = products.find(item => item.id == id);
+            if (p) msg += `• ${p.name}: ${qty} ${p.unit} x ${fmt(p.price)} = ${fmt(p.price * qty)}\n`;
+        });
+        msg += `\nИТОГО: ${fmt(cartTotal())}`;
+
+        // 2. Создаем ссылку, но пока не переходим
+        const waUrl = `https://wa.me/77054959007?text=${encodeURIComponent(msg)}`;
+
+        // 3. Отправляем в базу
+        try {
+            await supabase.from('orders').insert([{ 
+                name, 
+                phone, 
+                items: cart, 
+                total: cartTotal(),
+                date: new Date().toLocaleString()
+            }]);
+            
+            // 4. После успешной отправки в базу — принудительно переходим
+            // Используем window.open с _blank — это часто лучше работает на мобильных
+            window.open(waUrl, '_blank');
+            
+            // Если window.open не сработал, дублируем переход через location
+            setTimeout(() => {
+                window.location.href = waUrl;
+            }, 500);
+
+            showView('success');
+            cart = {};
+            renderProducts();
+            updateCartUI();
+        } catch (err) {
+            alert("Ошибка при отправке заказа: " + err.message);
+        }
+    }
 
 function clearCart(){ cart = {}; updateCartUI(); }
 
