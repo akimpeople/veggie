@@ -15,57 +15,48 @@
   * { margin:0; padding:0; box-sizing:border-box; }
   body { background:var(--bg); color:var(--text); font-family:'Golos Text',sans-serif; min-height:100vh; }
 
-  /* NAV */
-  nav {
-    position:sticky; top:0; z-index:100; background:rgba(13,13,13,0.92); backdrop-filter:blur(16px);
-    border-bottom:1px solid var(--border); display:flex; align-items:center; justify-content:space-between;
-    padding:0 24px; height:64px;
-  }
-  .logo { font-family:'Unbounded',sans-serif; font-size:14px; font-weight:800; letter-spacing:-0.5px; line-height:1.2; cursor:default; user-select:none; }
+  nav { position:sticky; top:0; z-index:100; background:rgba(13,13,13,0.92); backdrop-filter:blur(16px); border-bottom:1px solid var(--border); display:flex; align-items:center; justify-content:space-between; padding:0 24px; height:64px; }
+  .logo { font-family:'Unbounded',sans-serif; font-size:14px; font-weight:800; cursor:default; user-select:none; }
   .logo span { color:var(--accent); }
-  .btn { display:inline-flex; align-items:center; gap:8px; padding:10px 20px; border-radius:var(--radius); border:none; cursor:pointer; font-family:'Golos Text',sans-serif; font-size:14px; font-weight:600; transition:all .2s; }
+  .btn { display:inline-flex; align-items:center; gap:8px; padding:10px 20px; border-radius:var(--radius); border:none; cursor:pointer; font-family:'Golos Text',sans-serif; font-size:14px; font-weight:600; }
   .btn-ghost { background:transparent; color:var(--muted); border:1px solid var(--border); }
   .btn-accent { background:var(--accent); color:#000; }
   
   .view { display:none; } .view.active { display:block; }
+
+  /* SHOP */
   .shop-header { padding:48px 24px 32px; }
   .shop-title { font-family:'Unbounded',sans-serif; font-size:40px; font-weight:800; line-height:1.1; }
   .shop-title span { color:var(--accent); }
-  .shop-subtitle { color:var(--muted); margin-top:8px; font-size:15px; }
   .products-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(280px,1fr)); gap:16px; padding:0 24px 32px; }
-  .product-card { background:var(--surface); border:1px solid var(--border); border-radius:16px; padding:24px; transition:border-color .2s; }
-  .product-card:hover { border-color:var(--accent); }
+  .product-card { background:var(--surface); border:1px solid var(--border); border-radius:16px; padding:24px; }
   .product-name { font-family:'Unbounded',sans-serif; font-size:16px; font-weight:600; }
-  .product-desc { color:var(--muted); font-size:13px; margin:6px 0; }
   .product-footer { display:flex; align-items:center; justify-content:space-between; margin-top:20px; }
   .product-price { font-family:'Unbounded',sans-serif; font-size:18px; font-weight:700; color:var(--accent); }
+  
+  .qty-control { display:flex; align-items:center; gap:8px; }
   .qty-btn { width:32px; height:32px; border-radius:8px; background:var(--surface2); border:1px solid var(--border); color:var(--text); cursor:pointer; }
   .qty-display { font-weight:700; min-width:24px; text-align:center; }
 
-  .cart-container { max-width:600px; margin:0 auto; padding:48px 24px; }
-  .form-group { margin-bottom:16px; }
-  label { font-size:13px; color:var(--muted); display:block; margin-bottom:4px; }
-  input, textarea, select { background:var(--surface2); border:1px solid var(--border); color:var(--text); border-radius:8px; padding:12px; width:100%; outline:none; }
-  .submit-btn { width:100%; padding:18px; background:var(--accent); color:#000; border:none; border-radius:12px; font-weight:700; cursor:pointer; font-family:'Unbounded',sans-serif; }
+  .cart-container { max-width:800px; margin:0 auto; padding:48px 24px; }
+  .form-section { background:var(--surface); border:1px solid var(--border); border-radius:16px; padding:28px; margin-top:24px; }
+  input, textarea, select { background:var(--surface2); border:1px solid var(--border); color:var(--text); border-radius:8px; padding:12px; width:100%; margin-top:4px; }
+  .submit-btn { width:100%; padding:18px; margin-top:20px; background:var(--accent); color:#000; border:none; border-radius:12px; font-weight:700; cursor:pointer; font-family:'Unbounded',sans-serif; }
 </style>
 </head>
 <body>
 
 <nav>
   <div class="logo" onclick="secretLogin()">МАГАЗИН<br><span>СВЕЖИХ ОВОЩЕЙ</span></div>
-  <div class="nav-actions">
-    <button class="btn btn-ghost" id="cartNavBtn" onclick="showView('cart')" style="display:none; border-color:var(--success);">
-      <span style="color:var(--success); font-weight:700;">Оформить</span>
-      <span id="navTotal" style="color:var(--success); margin-left:6px; font-family:'Unbounded',sans-serif;">0 ₸</span>
-    </button>
-  </div>
+  <button class="btn btn-ghost" id="cartNavBtn" onclick="showView('cart')" style="display:none; border-color:var(--success);">
+    <span style="color:var(--success); font-weight:700;">Оформить</span>
+    <span id="navTotal" style="color:var(--success); margin-left:6px; font-family:'Unbounded',sans-serif;">0 ₸</span>
+  </button>
 </nav>
 
 <div id="shopView" class="view active">
-  <div class="shop-header">
-    <h1 class="shop-title">Выберите<br><span>товары</span></h1>
-  </div>
-  <div class="products-grid" id="productsGrid"><div style="color:var(--muted)">Загрузка...</div></div>
+  <div class="shop-header"><h1 class="shop-title">Выберите<br><span>товары</span></h1></div>
+  <div class="products-grid" id="productsGrid">Загрузка...</div>
 </div>
 
 <div id="cartView" class="view">
@@ -73,24 +64,27 @@
     <button class="btn btn-ghost" onclick="showView('shop')">← Назад</button>
     <h2 style="margin:20px 0;">Накладная</h2>
     <div id="cartItemsList"></div>
-    <div id="cartSummary" style="margin:20px 0; font-weight:700; color:var(--accent); font-size:20px;"></div>
+    <div id="cartSummary" style="margin:20px 0; font-weight:700; color:var(--success); font-size:20px;"></div>
     
-    <h3>Контактные данные</h3>
-    <div class="form-group"><label>Имя</label><input type="text" id="fname" placeholder="Введите ваше имя"></div>
-    <div class="form-group"><label>Компания</label><input type="text" id="fcompany" placeholder="Название компании"></div>
-    <div class="form-group"><label>Телефон</label><input type="tel" id="fphone" placeholder="Ваш номер"></div>
-    <h3>Адрес доставки</h3>
-    <div class="form-group"><label>Город</label><input type="text" value="Астана" readonly style="opacity:0.6"></div>
-    <div class="form-group"><label>Улица, дом, квартира</label><input type="text" id="fstreet" placeholder="Введите адрес"></div>
+    <div class="form-section">
+      <h3>Контактные данные</h3>
+      <input type="text" id="fname" placeholder="Ваше имя">
+      <input type="text" id="fcompany" placeholder="Компания (необязательно)" style="margin-top:10px">
+      <input type="tel" id="fphone" placeholder="Телефон" style="margin-top:10px">
+    </div>
+    <div class="form-section">
+      <h3>Адрес доставки</h3>
+      <input type="text" value="Астана" readonly style="opacity:0.6; cursor:not-allowed;">
+      <input type="text" id="fstreet" placeholder="Улица, дом, квартира" style="margin-top:10px">
+      <textarea id="fcomment" placeholder="Комментарий..." style="margin-top:10px"></textarea>
+    </div>
     <button class="submit-btn" onclick="submitOrder()">Отправить заказ в WhatsApp</button>
   </div>
 </div>
 
 <script>
 const { createClient } = window.supabase;
-const SUPABASE_URL = 'https://izzqhixtzxkjiwyquvri.supabase.co';
-const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml6enFoaXh0enhraml3eXF1dnJpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk0NTIwODEsImV4cCI6MjA5NTAyODA4MX0.5vrBFp2WTNFlxPkhuQgPDlhq5t20JZUETT3c_rD84aM';
-const supabaseClient = createClient(SUPABASE_URL, SUPABASE_KEY);
+const supabaseClient = createClient('https://izzqhixtzxkjiwyquvri.supabase.co', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml6enFoaXh0enhraml3eXF1dnJpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk0NTIwODEsImV4cCI6MjA5NTAyODA4MX0.5vrBFp2WTNFlxPkhuQgPDlhq5t20JZUETT3c_rD84aM');
 
 let cart = {}, products = [], settings = { waNumber:'77054959007' };
 
@@ -108,7 +102,7 @@ function renderProducts(){
       <div class="product-footer">
         <div class="qty-control">
           <button class="qty-btn" onclick="changeQty(${p.id},-1)">−</button>
-          <span class="qty-display" id="qty-${p.id}">${cart[p.id]||0}</span>
+          <span class="qty-display">${cart[p.id]||0}</span>
           <button class="qty-btn" onclick="changeQty(${p.id},1)">+</button>
         </div>
       </div>
@@ -122,42 +116,45 @@ function changeQty(id, delta){
 }
 
 function updateCartUI(){
-  const count = Object.keys(cart).length;
   document.getElementById('navTotal').textContent = fmt(cartTotal());
-  document.getElementById('cartNavBtn').style.display = count>0?'flex':'none';
+  document.getElementById('cartNavBtn').style.display = Object.keys(cart).length > 0 ? 'flex' : 'none';
 }
 
-function cartTotal(){ return Object.entries(cart).reduce((s,[id,q])=>{ const p = products.find(x=>x.id==id); return s + (p ? p.price*q : 0); },0); }
+function cartTotal(){ return Object.entries(cart).reduce((s,[id,q])=>{ const p=products.find(x=>x.id==id); return s + (p?p.price*q:0); },0); }
 
 function renderCart(){
   const wrap = document.getElementById('cartItemsList');
   wrap.innerHTML = Object.entries(cart).map(([id,qty])=>{
     const p = products.find(x=>x.id==id);
-    return `<div style="display:flex; justify-content:space-between; padding:10px 0; border-bottom:1px solid var(--border);">
-      <div>${p.name} <br><small>${qty} ${p.unit} x ${fmt(p.price)}</small></div>
-      <div style="font-weight:700;">${fmt(p.price*qty)}</div>
+    return `<div style="display:flex; justify-content:space-between; align-items:center; padding:10px 0; border-bottom:1px solid var(--border);">
+      <div style="flex:1">${p.name}<br><small style="color:var(--muted)">${fmt(p.price)} x ${qty} ${p.unit}</small></div>
+      <div class="qty-control">
+        <button class="qty-btn" onclick="changeQtyCart(${p.id},-1)">−</button>
+        <span class="qty-display">${qty}</span>
+        <button class="qty-btn" onclick="changeQtyCart(${p.id},1)">+</button>
+      </div>
+      <div style="width:80px; text-align:right; font-weight:700; color:var(--accent)">${fmt(p.price*qty)}</div>
     </div>`;
   }).join('');
   document.getElementById('cartSummary').textContent = 'ИТОГО: ' + fmt(cartTotal());
 }
 
+function changeQtyCart(id, delta){ changeQty(id, delta); renderCart(); }
+
 async function submitOrder(){
-  const items = Object.entries(cart).map(([id,q])=>{ const p=products.find(x=>x.id==id); return {name:p.name, qty:q, unit:p.unit, price:p.price, total:p.price*q}; });
-  let msg = `НАКЛАДНАЯ\nКлиент: ${document.getElementById('fname').value}\nТелефон: ${document.getElementById('fphone').value}\nАдрес: Астана, ${document.getElementById('fstreet').value}\n\n`;
-  items.forEach(i => msg += `${i.name}: ${i.qty} ${i.unit} x ${i.price} = ${i.total}\n`);
-  msg += `\nИТОГО: ${cartTotal()}`;
+  const name = document.getElementById('fname').value, street = document.getElementById('fstreet').value;
+  if(!name || !street){ alert('Заполните Имя и Адрес'); return; }
+  
+  const items = Object.entries(cart).map(([id,q])=>{ const p=products.find(x=>x.id==id); return `• ${p.name}: ${q} ${p.unit} x ${fmt(p.price)} = ${fmt(p.price*q)}`; }).join('\n');
+  const msg = `НАКЛАДНАЯ\nКлиент: ${name}\nТелефон: ${document.getElementById('fphone').value}\nАдрес: Астана, ${street}\n\n${items}\n\nИТОГО: ${fmt(cartTotal())}`;
+  
+  await supabaseClient.from('orders').insert([{ name, phone: document.getElementById('fphone').value, items: cart, total: cartTotal() }]);
   window.open(`https://wa.me/${settings.waNumber}?text=${encodeURIComponent(msg)}`, '_blank');
 }
 
 let secretClicks = 0;
-function secretLogin() { if(++secretClicks >= 5) { location.href='?admin=true'; } }
-
-function showView(id){
-  document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
-  document.getElementById(id+'View').classList.add('active');
-  if(id==='cart') renderCart();
-}
-
+function secretLogin() { if(++secretClicks >= 5) location.href='?admin=true'; }
+function showView(id){ document.querySelectorAll('.view').forEach(v=>v.classList.remove('active')); document.getElementById(id+'View').classList.add('active'); if(id==='cart') renderCart(); }
 function fmt(n){ return new Intl.NumberFormat('ru-RU',{style:'currency',currency:'KZT',minimumFractionDigits:0}).format(n); }
 loadProducts();
 </script>
